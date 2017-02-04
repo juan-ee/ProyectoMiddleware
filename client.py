@@ -16,6 +16,13 @@ def imprimir_libros(lib):
   #print '   %-4d | %s' % (i,lib[i])
   print colored('   '+str(i)+'   ','blue',attrs=['bold']),'|',lib[i]
 
+def escoger_ruta_archivo():
+    while 1:
+        libro=raw_input('\nEscriba la ruta: ')
+        if os.path.isfile(libro):
+            return libro
+        print colored('\nruta incorrecta','red')
+
 def seleccionar_libro(lib):
  r=range(0,len(lib))
  while 1:
@@ -27,14 +34,6 @@ def seleccionar_libro(lib):
      except:
          print colored('\nCodigo incorrecto','red')
  return lib[n]
-
-def escoger_ruta_archivo():
-    while 1:
-        libro=raw_input('\nEscriba la ruta: ')
-        if os.path.isfile(libro):
-            return libro
-        print colored('\nruta incorrecta','red')
-
 
 def menu_cliente(n):
     s = socket.socket()
