@@ -39,14 +39,17 @@ def menu_cliente(n):
     s = socket.socket()
     s.connect((sys.argv[1], int(sys.argv[2])))
     while 1:
-        print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
-        caso=raw_input('\nEscriba una opcion: ')
+        #print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
+        #caso=raw_input('\nEscriba una opcion: ')
+        caso='1'
         if caso == '1':
             #descargar un libro
             mensajeria.enviar(s,'DOWNLOAD')
-            libro=seleccionar_libro(pickle.loads(mensajeria.recibir(s)))
+            #libro=seleccionar_libro(pickle.loads(mensajeria.recibir(s)))
+            libro=pickle.loads(mensajeria.recibir(s))[0]
             mensajeria.enviar(s,libro)
-            mensajeria.descargar_libro(s,libro)
+            #mensajeria.descargar_libro(s,libro)
+            mensajeria.descargar_libro(s,sys.argv[3]+'/'+libro)
             print colored('\n'+libro+' descargado con exito','green')
             break
         elif caso == '2':
