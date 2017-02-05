@@ -5,6 +5,7 @@ import time
 import mensajeria
 import pickle
 import os
+import xmlrpclib
 from termcolor import colored
 
 def imprimir_libros(lib):
@@ -36,33 +37,38 @@ def seleccionar_libro(lib):
  return lib[n]
 
 def menu_cliente(n):
-    s = socket.socket()
-    s.connect((sys.argv[1], int(sys.argv[2])))
-    while 1:
-        #print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
-        #caso=raw_input('\nEscriba una opcion: ')
-        caso='1'
-        if caso == '1':
-            #descargar un libro
-            mensajeria.enviar(s,'DOWNLOAD')
-            #libro=seleccionar_libro(pickle.loads(mensajeria.recibir(s)))
-            libro=pickle.loads(mensajeria.recibir(s))[0]
-            mensajeria.enviar(s,libro)
-            #mensajeria.descargar_libro(s,libro)
-            mensajeria.descargar_libro(s,sys.argv[3]+'/'+libro+'.'+str(n))
-            print colored('\n'+libro+' descargado con exito','green')
-            break
-        elif caso == '2':
-            #subir un libro
-            mensajeria.enviar(s,'UPLOAD')
-            ruta=escoger_ruta_archivo()
-            mensajeria.enviar(s,ruta.split('/')[-1])
-            mensajeria.enviar_archivo(s,ruta)
-            print colored('\nlibro subido con exito','green')
-            break
-        else:
-            print colored('\nOpcion incorrecta','red')
-    s.close()
+    proxy = xmlrpclib.ServerProxy("http://localhost:8000/")
+    if(proxy.autenticar(sys.argv[4],sys.argv[5])):
+    #if(proxy.autenticar(sys.argv[3],sys.argv[4])):
+        s = socket.socket()
+        s.connect((sys.argv[1], int(sys.argv[2])))
+        while 1:
+            #print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
+            #caso=raw_input('\nEscriba una opcion: ')
+            caso='1'
+            if caso == '1':
+                #descargar un libro
+                mensajeria.enviar(s,'DOWNLOAD')
+                #libro=seleccionar_libro(pickle.loads(mensajeria.recibir(s)))
+                libro=pickle.loads(mensajeria.recibir(s))[0]
+                mensajeria.enviar(s,libro)
+                #mensajeria.descargar_libro(s,libro)
+                mensajeria.descargar_libro(s,sys.argv[3]+'/'+libro+'.'+str(n))
+                print colored('\n'+libro+' descargado con exito','green')
+                break
+            elif caso == '2':
+                #subir un libro
+                mensajeria.enviar(s,'UPLOAD')
+                ruta=escoger_ruta_archivo()
+                mensajeria.enviar(s,ruta.split('/')[-1])
+                mensajeria.enviar_archivo(s,ruta)
+                print colored('\nlibro subido con exito','green')
+                break
+            else:
+                print colored('\nOpcion incorrecta','red')
+        s.close()
+    else:
+        print colored('\nAutenticacion incorrecta','red')
 
 
 for i in range(0,10):
