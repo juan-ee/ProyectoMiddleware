@@ -12,13 +12,19 @@ def autenticar(usuario,clave):
     except:
      return False
 
-def escuchar(conn):
+def escuchar(conn,addr):
+    f=open('log','a')
     caso=mensajeria.recibir(conn)
     if caso == 'DOWNLOAD':
         mensajeria.enviar(conn,pickle.dumps(os.listdir('Libros')))
-        mensajeria.enviar_archivo(conn,'Libros/'+mensajeria.recibir(conn))
+        l=mensajeria.recibir(conn)
+        mensajeria.enviar_archivo(conn,'Libros/'+l)
+        f.write('['+time.strftime('%c')+'] '+addr[0]+' descargó '+l+'\n')
     else:
-        mensajeria.descargar_libro(conn,'Libros/'+mensajeria.recibir(conn))
+        l=mensajeria.recibir(conn)
+        mensajeria.descargar_libro(conn,'Libros/'+l)
+        f.write('['+time.strftime('%c')+'] '+addr[0]+' subió '+l+'\n')
+    f.close()
     conn.close()
     return
 
@@ -32,7 +38,7 @@ while True:
   credenciales=pickle.loads(mensajeria.recibir(conn))
   if(autenticar(credenciales[0],credenciales[1])):
       mensajeria.enviar(conn,'ACCEPTED')
-      threading.Thread(target=escuchar,args=(conn,)).start()
+      threading.Thread(target=escuchar,args=(conn,addr,)).start()
   else:
       mensajeria.enviar(conn,'REJECTED')
   n+=1
