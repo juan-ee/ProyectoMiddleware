@@ -73,5 +73,5 @@ def menu_cliente(n):
         print colored('\nAutenticacion incorrecta','red')
 
 
-for i in range(0,1):
+for i in range(0,100):
  threading.Thread(target=menu_cliente,args=(i,)).start()

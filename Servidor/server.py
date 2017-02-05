@@ -19,11 +19,11 @@ def escuchar(conn,addr):
         mensajeria.enviar(conn,pickle.dumps(os.listdir('Libros')))
         l=mensajeria.recibir(conn)
         mensajeria.enviar_archivo(conn,'Libros/'+l)
-        f.write('['+time.strftime('%c')+'] '+addr[0]+' descargó '+l+'\n')
+        f.write('['+time.strftime('%c')+'] '+addr[0]+' downloded '+l+'\n')
     else:
         l=mensajeria.recibir(conn)
         mensajeria.descargar_libro(conn,'Libros/'+l)
-        f.write('['+time.strftime('%c')+'] '+addr[0]+' subió '+l+'\n')
+        f.write('['+time.strftime('%c')+'] '+addr[0]+' uploaded '+l+'\n')
     f.close()
     conn.close()
     return
