@@ -1,7 +1,6 @@
 import socket
 import sys
 import threading
-import time
 import mensajeria
 import pickle
 import os
@@ -37,11 +36,12 @@ def seleccionar_libro(lib):
  return lib[n]
 
 def menu_cliente(n):
-    proxy = xmlrpclib.ServerProxy("http://localhost:8000/")
-    if(proxy.autenticar(sys.argv[4],sys.argv[5])):
-    #if(proxy.autenticar(sys.argv[3],sys.argv[4])):
-        s = socket.socket()
-        s.connect((sys.argv[1], int(sys.argv[2])))
+    s = socket.socket()
+    s.connect((sys.argv[1], int(sys.argv[2])))
+    #mensajeria.enviar(s,pickle.dumps((sys.argv[3],sys.argv[4])))
+    mensajeria.enviar(s,pickle.dumps((sys.argv[4],sys.argv[5])))
+
+    if mensajeria.recibir(s)!='REJECTED':
         while 1:
             #print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
             #caso=raw_input('\nEscriba una opcion: ')
@@ -71,5 +71,5 @@ def menu_cliente(n):
         print colored('\nAutenticacion incorrecta','red')
 
 
-for i in range(0,10):
+for i in range(0,100):
  threading.Thread(target=menu_cliente,args=(i,)).start()
