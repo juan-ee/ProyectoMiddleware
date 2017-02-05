@@ -1,6 +1,6 @@
 #!bin/bash
 max=10
-for i in `seq 0 $max`
+for i in `seq 1 $max`
 do
 #python client.py localhost 4058 comprimido.tar.gz
 mkdir Cliente$i

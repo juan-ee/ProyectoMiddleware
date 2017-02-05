@@ -49,7 +49,7 @@ def menu_cliente(n):
             libro=pickle.loads(mensajeria.recibir(s))[0]
             mensajeria.enviar(s,libro)
             #mensajeria.descargar_libro(s,libro)
-            mensajeria.descargar_libro(s,sys.argv[3]+'/'+libro)
+            mensajeria.descargar_libro(s,sys.argv[3]+'/'+libro+'.'+str(n))
             print colored('\n'+libro+' descargado con exito','green')
             break
         elif caso == '2':
@@ -65,5 +65,5 @@ def menu_cliente(n):
     s.close()
 
 
-for i in range(0,1):
+for i in range(0,10):
  threading.Thread(target=menu_cliente,args=(i,)).start()
