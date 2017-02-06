@@ -35,10 +35,10 @@ def seleccionar_libro(lib):
          print colored('\nCodigo incorrecto','red')
  return lib[n]
 
-def conectar_ftp(servidor,puerto):
+def conectar_ftp(serv,n):
     try:
         s = socket.socket()
-        s.connect((servidor, puerto))
+        s.connect(serv)
         mensajeria.enviar(s,'CLIENTE')
         mensajeria.enviar(s,pickle.dumps((sys.argv[4],sys.argv[5])))
         if mensajeria.recibir(s)=='ACCEPTED':
@@ -71,7 +71,7 @@ def conectar_ftp(servidor,puerto):
             s.close()
         else:
             print colored('\nError de autenticacion','red')
-    except:
+    except Exception as e:
         print colored('\nConexion fallida','red')
         s.close()
 
@@ -79,9 +79,9 @@ def conectar_ftp(servidor,puerto):
 def menu_cliente(n):
     s = socket.socket()
     s.connect((sys.argv[1], int(sys.argv[2])))
-    print pickle.loads(mensajeria.recibir(s))
+    serv=pickle.loads(mensajeria.recibir(s))
     s.close()
-
+    conectar_ftp(serv,n)
 
 
 

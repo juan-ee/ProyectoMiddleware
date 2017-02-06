@@ -54,7 +54,8 @@ try:
         conn, addr = s.accept()
         if mensajeria.recibir(conn)=='BALANCEADOR':
             soc_bal=conn
-        else:
+        else:            
             servir(conn,addr)
-except:
+except Exception as e:
+    print e
     sys.exit(1)

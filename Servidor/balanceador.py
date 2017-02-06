@@ -33,10 +33,10 @@ class Balanceador(object):
   self.s.listen(5)
   n=0;
   while 1:
-   if len(self.cluster)==0:break #se detiene si ya no hay mas servidores que atiendan
    conn, addr = self.s.accept()
    n+=1
    print n
+   if len(self.cluster)==0:break #se detiene si ya no hay mas servidores que atiendan
    mensajeria.enviar(conn,pickle.dumps(random.choice(self.cluster).getpeername()))
    conn.close()
   self.s.close()
@@ -45,7 +45,7 @@ class Balanceador(object):
  def f_cliente(self,socket):
      try:
          if (mensajeria.recibir(socket)):
-             raise         
+             raise
      except:
          socket.close()
          self.cluster.remove(socket)
