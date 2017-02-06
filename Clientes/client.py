@@ -36,6 +36,7 @@ def seleccionar_libro(lib):
          print colored('\nCodigo incorrecto','red')
  return lib[n]
 
+
 def conectar_ftp(serv):
     back_end = xmlrpclib.ServerProxy(serv)
     try:
@@ -43,22 +44,20 @@ def conectar_ftp(serv):
             #print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
             #caso=raw_input('\nEscriba una opcion: ')
             #caso=str(random.choice(range(1,3)))
-            caso='1'
+            caso='2'
             if caso == '1':
                 libro=random.choice(back_end.obtener_lista())
                 with open(libro, 'wb') as handle:
-                    handle.write(back_end.bajar_libro(libro).data)
+                    handle.write(back_end.bajar_libro('Libros/'+libro).data)
+                handle.close()
                 print colored('\n'+libro+' descargado con exito','green')
+
                 break
             elif caso == '2':
-                #subir un libro
-                mensajeria.enviar(s,'UPLOAD')
-                #ruta=escoger_ruta_archivo()
-                #mensajeria.enviar(s,ruta.split('/')[-1])
-                mensajeria.enviar(s,'Prueba.pdf')
-                #mensajeria.enviar_archivo(s,ruta)
-                mensajeria.enviar_archivo(s,'Prueba.pdf')
-                print colored('\nlibro subido con exito','green')
+                lib='Prueba.pdf'
+                with open(lib, "rb") as handle:
+                     back_end.subir_libro(lib,xmlrpclib.Binary(handle.read()))
+                handle.close()
                 break
             else:
                     print colored('\nOpcion incorrecta','red')
