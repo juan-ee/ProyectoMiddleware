@@ -9,16 +9,15 @@ import mensajeria
 
 class Balanceador(object):
  def __init__(self):
-  self.s=socket.socket()
-  self.cola=deque()
+  #self.cola=deque()
   self.cluster=[]
   #conexion con todos los servidores
   self.conectar_servidores()
   #inicio servidor
-  #self.cluster.append(1)
   threading.Thread(target=self.f_servidor).start()
   #inicio de la funcion del balanceador
   #threading.Thread(target=self.balanceador).start()
+
 
  def conectar_servidores(self):
   for i in range(3,len(sys.argv)):
@@ -29,17 +28,18 @@ class Balanceador(object):
    threading.Thread(target=self.f_cliente,args=(c,)).start()
 
  def f_servidor(self):
-  self.s.bind(('',int(sys.argv[1])))
-  self.s.listen(5)
+  s=socket.socket()
+  s.bind(('',int(sys.argv[1])))
+  s.listen(5)
   n=0;
   while 1:
-   conn, addr = self.s.accept()
+   conn, addr = s.accept()
    n+=1
    print n
    if len(self.cluster)==0:break #se detiene si ya no hay mas servidores que atiendan
    mensajeria.enviar(conn,pickle.dumps(random.choice(self.cluster).getpeername()))
    conn.close()
-  self.s.close()
+  s.close()
   return
 
  def f_cliente(self,socket):
