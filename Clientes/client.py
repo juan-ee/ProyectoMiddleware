@@ -43,12 +43,12 @@ def conectar_ftp(serv):
         while 1:
             #print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
             #caso=raw_input('\nEscriba una opcion: ')
-            #caso=str(random.choice(range(1,3)))
-            caso='2'
+            caso=str(random.choice(range(1,3)))
             if caso == '1':
                 libro=random.choice(back_end.obtener_lista())
-                with open(libro, 'wb') as handle:
-                    handle.write(back_end.bajar_libro('Libros/'+libro).data)
+                #with open(libro, 'wb') as handle:
+                with open(sys.argv[3]+'/'+libro, 'wb') as handle:
+                    handle.write(back_end.bajar_libro(libro).data)
                 handle.close()
                 print colored('\n'+libro+' descargado con exito','green')
 
@@ -59,6 +59,7 @@ def conectar_ftp(serv):
                 with open(lib, "rb") as handle:
                      back_end.subir_libro(lib,xmlrpclib.Binary(handle.read()))
                 handle.close()
+                print colored('\nlibro subido con exito','green')
                 break
             else:
                     print colored('\nOpcion incorrecta','red')
@@ -69,7 +70,8 @@ def conectar_ftp(serv):
 
 def menu_cliente(n):
     front_end = xmlrpclib.ServerProxy('http://'+sys.argv[1]+':'+sys.argv[2])
-    if front_end.autenticar(sys.argv[3],sys.argv[4]):
+    #if front_end.autenticar(sys.argv[3],sys.argv[4]):
+    if front_end.autenticar(sys.argv[4],sys.argv[5]):
         conectar_ftp(front_end.get_servidor())
     else:
         print colored('\nAUtenticacion fallida','red')
