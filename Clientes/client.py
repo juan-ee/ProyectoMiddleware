@@ -30,48 +30,60 @@ def seleccionar_libro(lib):
      try:
          n=int(raw_input('\nEscriba el codigo de un libro: '))
          if n in r: break
-         print colored('\nCodigo incorrecto','red')
+         raise
      except:
          print colored('\nCodigo incorrecto','red')
  return lib[n]
 
+def conectar_ftp(servidor,puerto):
+    try:
+        s = socket.socket()
+        s.connect((servidor, puerto))
+        mensajeria.enviar(s,'CLIENTE')
+        mensajeria.enviar(s,pickle.dumps((sys.argv[4],sys.argv[5])))
+        if mensajeria.recibir(s)=='ACCEPTED':
+            while 1:
+                #print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
+                #caso=raw_input('\nEscriba una opcion: ')
+                caso=str(random.choice(range(1,3)))
+                if caso == '1':
+                    #descargar un libro
+                    mensajeria.enviar(s,'DOWNLOAD')
+                    #libro=seleccionar_libro(pickle.loads(mensajeria.recibir(s)))
+                    libro=random.choice(pickle.loads(mensajeria.recibir(s)))
+                    mensajeria.enviar(s,libro)
+                    #mensajeria.descargar_libro(s,libro)
+                    mensajeria.descargar_libro(s,sys.argv[3]+'/'+libro+'.'+str(n))
+                    print colored('\n'+libro+' descargado con exito','green')
+                    break
+                elif caso == '2':
+                    #subir un libro
+                    mensajeria.enviar(s,'UPLOAD')
+                    #ruta=escoger_ruta_archivo()
+                    #mensajeria.enviar(s,ruta.split('/')[-1])
+                    mensajeria.enviar(s,'Prueba.pdf')
+                    #mensajeria.enviar_archivo(s,ruta)
+                    mensajeria.enviar_archivo(s,'Prueba.pdf')
+                    print colored('\nlibro subido con exito','green')
+                    break
+                else:
+                    print colored('\nOpcion incorrecta','red')
+            s.close()
+        else:
+            print colored('\nError de autenticacion','red')
+    except:
+        print colored('\nConexion fallida','red')
+        s.close()
+
+
 def menu_cliente(n):
     s = socket.socket()
     s.connect((sys.argv[1], int(sys.argv[2])))
-    #mensajeria.enviar(s,pickle.dumps((sys.argv[3],sys.argv[4])))
-    mensajeria.enviar(s,pickle.dumps((sys.argv[4],sys.argv[5])))
-
-    if mensajeria.recibir(s)!='REJECTED':
-        while 1:
-            #print '\nMENU PRINCIPAL\n\n  1.Descargar un libro\n  2.Subir un libro'
-            #caso=raw_input('\nEscriba una opcion: ')
-            caso=str(random.choice(range(1,3)))
-            if caso == '1':
-                #descargar un libro
-                mensajeria.enviar(s,'DOWNLOAD')
-                #libro=seleccionar_libro(pickle.loads(mensajeria.recibir(s)))
-                libro=random.choice(pickle.loads(mensajeria.recibir(s)))
-                mensajeria.enviar(s,libro)
-                #mensajeria.descargar_libro(s,libro)
-                mensajeria.descargar_libro(s,sys.argv[3]+'/'+libro+'.'+str(n))
-                print colored('\n'+libro+' descargado con exito','green')
-                break
-            elif caso == '2':
-                #subir un libro
-                mensajeria.enviar(s,'UPLOAD')
-                #ruta=escoger_ruta_archivo()
-                #mensajeria.enviar(s,ruta.split('/')[-1])
-                mensajeria.enviar(s,'Prueba.pdf')
-                #mensajeria.enviar_archivo(s,ruta)
-                mensajeria.enviar_archivo(s,'Prueba.pdf')
-                print colored('\nlibro subido con exito','green')
-                break
-            else:
-                print colored('\nOpcion incorrecta','red')
-        s.close()
-    else:
-        print colored('\nAutenticacion incorrecta','red')
+    print pickle.loads(mensajeria.recibir(s))
+    s.close()
 
 
-for i in range(0,100):
+
+
+for i in range(0,10):
  threading.Thread(target=menu_cliente,args=(i,)).start()
