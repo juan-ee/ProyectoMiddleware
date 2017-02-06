@@ -55,6 +55,7 @@ def conectar_ftp(serv):
                 break
             elif caso == '2':
                 lib='Prueba.pdf'
+                #lib=escoger_ruta_archivo().split('/')[-1]
                 with open(lib, "rb") as handle:
                      back_end.subir_libro(lib,xmlrpclib.Binary(handle.read()))
                 handle.close()
