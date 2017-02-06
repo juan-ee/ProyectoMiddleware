@@ -1,6 +1,7 @@
 import sys
 import os
 import xmlrpclib
+import time
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 
 import atexit
@@ -14,12 +15,19 @@ class Servidor(SimpleXMLRPCServer):
         self.client_address = client_address
         return SimpleXMLRPCServer.process_request(self, request, client_address)
 
+def escribir_log(accion,l):
+    with open('log', "a") as f:
+            f.write('['+time.strftime('%c')+'] '+server.client_address[0]+' '+accion+' '+l+'\n')
+    f.close()
+
 def bajar_libro(libro):
+    escribir_log('downloded',libro)
     with open('Libros/'+libro, "rb") as handle:
          return xmlrpclib.Binary(handle.read())
-    handle.close()
+    handle.close()        
 
 def subir_libro(nombre,libro):
+    escribir_log('uploaded',nombre)
     with open('Libros/'+nombre, 'wb') as handle:
         handle.write(libro.data)
     handle.close()
