@@ -9,7 +9,6 @@ import mensajeria
 
 class Balanceador(object):
  def __init__(self):
-  self.cola=deque()
   self.cluster=[]
   #conexion con todos los servidores
   self.conectar_servidores()
@@ -17,15 +16,6 @@ class Balanceador(object):
   threading.Thread(target=self.f_servidor).start()
   #inicio de la funcion del balanceador
   threading.Thread(target=self.balanceador).start()
-
- def balanceador(self):
-  while 1:
-   while len(self.cola)==0: #verifica si la cola esta vacia
-    continue   
-   cli=self.cola.popleft()
-   mensajeria.enviar(cli,pickle.dumps(random.choice(self.cluster).getpeername()))
-   cli.close()
-  #self.cli.join()
 
  def conectar_servidores(self):
   for i in range(3,len(sys.argv)):
@@ -45,7 +35,7 @@ class Balanceador(object):
    n+=1
    print n
    if len(self.cluster)==0:break #se detiene si ya no hay mas servidores que atiendan
-   self.cola.append(conn)
+   mensajeria.enviar(conn,pickle.dumps(random.choice(self.cluster).getpeername()))
   s.close()
   return
 

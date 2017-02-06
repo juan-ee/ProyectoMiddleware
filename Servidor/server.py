@@ -40,10 +40,11 @@ def servir(conn,addr):
     credenciales=pickle.loads(mensajeria.recibir(conn))
     if(autenticar(credenciales[0],credenciales[1])):
         mensajeria.enviar(conn,'ACCEPTED')
-        threading.Thread(target=atender,args=(conn,addr,)).start()
+        hilos.append(threading.Thread(target=atender,args=(conn,addr,)))
+        hilos[-1].start()
     else:
         mensajeria.enviar(conn,'REJECTED')
-
+hilos=[]
 soc_bal= socket.socket()
 s = socket.socket()
 s.bind(('', int(sys.argv[1])))
@@ -54,7 +55,7 @@ try:
         conn, addr = s.accept()
         if mensajeria.recibir(conn)=='BALANCEADOR':
             soc_bal=conn
-        else:            
+        else:
             servir(conn,addr)
 except Exception as e:
     print e
