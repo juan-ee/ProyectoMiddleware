@@ -71,7 +71,7 @@ def conectar_ftp(serv,n):
             s.close()
         else:
             print colored('\nError de autenticacion','red')
-    except Exception as e:
+    except:
         print colored('\nConexion fallida','red')
         s.close()
 
