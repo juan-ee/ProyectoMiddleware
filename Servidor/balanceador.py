@@ -1,61 +1,34 @@
-from collections import deque
-import socket
-import sys
-import time
-import threading
-import pickle
 import random
-import mensajeria
+import sys
+import xmlrpclib
+import pickle
+from SimpleXMLRPCServer import SimpleXMLRPCServer
 
-class Balanceador(object):
- def __init__(self):
-  self.cola=deque()
-  self.cluster=[]
-  #conexion con todos los servidores
-  self.conectar_servidores()
-  #inicio servidor
-  threading.Thread(target=self.f_servidor).start()
-  #inicio de la funcion del balanceador
-  threading.Thread(target=self.balanceador).start()
 
- def balanceador(self):
-  while 1:
-   while len(self.cola)==0: #verifica si la cola esta vacia
-    continue   
-   cli=self.cola.popleft()
-   mensajeria.enviar(cli,pickle.dumps(random.choice(self.cluster).getpeername()))
-   cli.close()
-  #self.cli.join()
+def agregar_servidor(serv):
+    global servidores
+    servidores.append('http://'+serv[0]+':'+str(serv[1]))
 
- def conectar_servidores(self):
-  for i in range(3,len(sys.argv)):
-   c = socket.socket()
-   c.connect((sys.argv[2],int(sys.argv[i])))
-   mensajeria.enviar(c,'BALANCEADOR')
-   self.cluster.append(c)
-   threading.Thread(target=self.f_cliente,args=(c,)).start()
+def quitar_servidor(serv):
+    global servidores
+    servidores.remove('http://'+serv[0]+':'+str(serv[1]))
 
- def f_servidor(self):
-  s=socket.socket()
-  s.bind(('',int(sys.argv[1])))
-  s.listen(5)
-  n=0;
-  while 1:
-   conn, addr = s.accept()
-   n+=1
-   print n
-   if len(self.cluster)==0:break #se detiene si ya no hay mas servidores que atiendan
-   self.cola.append(conn)
-  s.close()
-  return
+def get_servidor():
+    global servidores
+    return random.choice(servidores)
 
- def f_cliente(self,socket):
-     try:
-         if (mensajeria.recibir(socket)):
-             raise
-     except:
-         socket.close()
-         self.cluster.remove(socket)
-     return
+def autenticar(usuario,clave):
+    try:
+     return pickle.load(open('usuarios','rb'))[usuario]==clave
+    except Exception as e:
+     print e
+     return False
 
-Balanceador()
+servidores=[]
+server = SimpleXMLRPCServer(("localhost", int(sys.argv[1])),allow_none=True)
+print 'Front end funcionando ...'
+server.register_function(agregar_servidor, "agregar_servidor")
+server.register_function(quitar_servidor, "quitar_servidor")
+server.register_function(autenticar, "autenticar")
+server.register_function(get_servidor, "get_servidor")
+server.serve_forever()

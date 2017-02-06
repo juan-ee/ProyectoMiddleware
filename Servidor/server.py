@@ -1,61 +1,32 @@
-import socket
 import sys
-import time
-import threading
-import pickle
 import os
-import mensajeria
+import xmlrpclib
+from SimpleXMLRPCServer import SimpleXMLRPCServer
 
 import atexit
 @atexit.register
 def goodbye():
-    global soc_bal
-    mensajeria.enviar(soc_bal,'BYE')
+    global balanceador,server
+    balanceador.quitar_servidor(server.server_address)
 
-def autenticar(usuario,clave):
-    try:
-     return pickle.load(open('usuarios','rb'))[usuario]==clave
-    except:
-     return False
+class Servidor(SimpleXMLRPCServer):
+    def process_request(self, request, client_address):
+        self.client_address = client_address
+        return SimpleXMLRPCServer.process_request(self, request, client_address)
 
-def atender(conn,addr):
-    # global clientes
-    f=open('log','a')
-    caso=mensajeria.recibir(conn)
-    if caso == 'DOWNLOAD':
-        mensajeria.enviar(conn,pickle.dumps(os.listdir('Libros')))
-        l=mensajeria.recibir(conn)
-        mensajeria.enviar_archivo(conn,'Libros/'+l)
-        f.write('['+time.strftime('%c')+'] '+addr[0]+' downloded '+l+'\n')
-    else:
-        l=mensajeria.recibir(conn)
-        mensajeria.descargar_libro(conn,'Libros/'+l)
-        f.write('['+time.strftime('%c')+'] '+addr[0]+' uploaded '+l+'\n')
-    f.close()
-    conn.close()
-    # clientes.remove(conn)
-    return
+def bajar_libro(lib):
+    with open('Libros/'+lib, "rb") as handle:
+         return xmlrpclib.Binary(handle.read())
 
-def servir(conn,addr):
-    credenciales=pickle.loads(mensajeria.recibir(conn))
-    if(autenticar(credenciales[0],credenciales[1])):
-        mensajeria.enviar(conn,'ACCEPTED')
-        threading.Thread(target=atender,args=(conn,addr,)).start()
-    else:
-        mensajeria.enviar(conn,'REJECTED')
+def obtener_lista():
+     return os.listdir('Libros')
 
-soc_bal= socket.socket()
-s = socket.socket()
-s.bind(('', int(sys.argv[1])))
-s.listen(5)
-try:
-    print 'Servidor escuchando....'
-    while True:
-        conn, addr = s.accept()
-        if mensajeria.recibir(conn)=='BALANCEADOR':
-            soc_bal=conn
-        else:            
-            servir(conn,addr)
-except Exception as e:
-    print e
-    sys.exit(1)
+server = Servidor(('localhost', int(sys.argv[1])))
+print "Back end..."
+server.register_function(obtener_lista, "obtener_lista")
+server.register_function(bajar_libro, "bajar_libro")
+
+balanceador = xmlrpclib.ServerProxy("http://localhost:3000/")
+balanceador.agregar_servidor(server.server_address)
+
+server.serve_forever()
